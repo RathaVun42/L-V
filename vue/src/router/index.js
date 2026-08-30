@@ -1,3 +1,7 @@
+import AdminLayout from '@/layouts/adminLayout.vue'
+import { userStore } from '@/stores/user'
+import Dashboard from '@/views/auth/dashboard.vue'
+import Login from '@/views/auth/login.vue'
 import Register from '@/views/auth/register.vue'
 import Verified_email from '@/views/auth/verified_email.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -9,11 +13,33 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: Register
+      component: Register,
+      meta: { guestOnly: true }, 
+      
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: { guestOnly: true }
     },
     {
       path: '/email_verified',
-      component: Verified_email
+      component: Verified_email,
+      meta: { guestOnly: true }
+    },
+    {
+      path: '/dashboard',
+      component: AdminLayout,
+      name: 'admin.dashboard',
+      children: [
+        {
+          path: 'index', // no need slash /
+          component: Dashboard,
+          name: 'dashboard.index',
+          meta: { requiresAuth: true }
+        }
+      ]
     }
     // {
     //   path: '/',
@@ -29,6 +55,22 @@ const router = createRouter({
     //   component: () => import('../views/AboutView.vue'),
     // },
   ],
+})
+router.beforeEach((to) => {
+    const store = userStore()
+    // Protected route
+    if (to.meta.requiresAuth && !store.isAuthenticated) {
+        return {
+            name: 'login'
+        }
+    }
+
+    // Guest-only route
+    if (to.meta.guestOnly && store.isAuthenticated) {
+        return {
+            name: 'dashboard.index'
+        }
+    }
 })
 
 export default router

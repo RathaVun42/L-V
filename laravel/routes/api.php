@@ -11,6 +11,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 Route::get('/email/verify/{id}/{hash}', function (int $id, string $hash) {
     if(!URL::hasValidSignature(request())){
         abort(403, 'Invalid or expired verification link.');

@@ -11,13 +11,17 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "axios": "^1.19.0",
+    "ogl": "^1.0.11",
     "pinia": "^4.0.2",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "sweetalert2": "^11.26.25",
     "tailwindcss": "^4.3.3",
     "vue": "rc",
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
+    "jsrepo": "^3.8.1",
     "vite": "^8.1.5",
     "vite-plugin-vue-devtools": "^8.1.5"
   },

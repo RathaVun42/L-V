@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ImageClass;
 use App\Http\Requests\loginReq;
 use App\Http\Requests\registerReq;
 use App\Models\User;
 use App\Notifications\VerifyEmailNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
@@ -13,10 +15,12 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     public function register(registerReq $request){
+        $create_image = new ImageClass(directory: 'images/users');
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'profile_image' => $create_image->store($request->image)
          ]);
 
         $verificationUrl = URL::temporarySignedRoute( 
@@ -57,5 +61,14 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token
         ], 200);
+    }
+    public function logout(Request $request){
+        $user = $request->user();
+        $currentToken = $user->currentAccessToken();
+        $user->tokens()->where('id', $currentToken->id)->delete();
+
+        return response([
+            'message' => 'User signed out'
+        ]);
     }
 }

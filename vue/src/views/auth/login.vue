@@ -54,7 +54,8 @@ const user = reactive({
 const store = userStore()
 const userErr = reactive({
     email: '',
-    password: ''
+    password: '',
+
 })
 function resetAllState() {
     Object.assign(user, defaultUser);
@@ -85,7 +86,7 @@ const loginM = async (user) => {
             Object.keys(userErr).forEach((key) =>{
                 userErr[key] = data.errors[key] ? data.errors[0] : ''
             })
-            return CloseModal()
+            // return CloseModal()
         }
         return MessageModal({ icon: "error", title: "Error", text: data.message });
     } 

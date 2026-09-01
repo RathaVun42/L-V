@@ -49,14 +49,14 @@
                     </div>
                 </div>
                 <div>
-                    <input class="block w-full text-sm text-gray-500
+                    <input @change="handleFileChange" class="block w-full text-sm text-gray-500
                                 file:mr-4 file:rounded-md
                                 file:border-0
                                 file:bg-emerald-500
                                 file:px-4 file:py-2
                                 file:text-sm file:font-semibold
                                 file:text-black
-                                hover:file:bg-emerald-300" type="file" name="avatar" id="avatar"
+                                hover:file:bg-emerald-300" type="file" name="image" id="image"
                         accept=".png,.jpg,.webp">
                 </div>
 
@@ -82,6 +82,7 @@ import router from '@/router';
 import { reactive, ref } from 'vue';
 import Lightfall from '@/components/Lightfall.vue';
 import { CloseModal, LoadingModal } from '@/functions/swal';
+import { register } from '@/services/auth';
 
 const user = reactive(
     new User(
@@ -89,10 +90,14 @@ const user = reactive(
             name: '',
             email: '',
             password: '',
-            password_confirmation: ''
+            password_confirmation: '',
+            image: null
         }
     )
 );
+const handleFileChange = (event) => {
+    user.image = event.target.files[0]
+}
 const isRegistering = ref(false)
 const nameErr = ref(false)
 const emailErr = ref(false)
@@ -107,6 +112,7 @@ const registerM = async (user = {}) => {
         LoadingModal('Checking you email.')
         isRegistering.value = true
         const res = await register(user);
+        console.log(user.image)
         
         if (res.status == 201) {
             router.push('/email_verified')
@@ -114,8 +120,10 @@ const registerM = async (user = {}) => {
         return CloseModal()
         
     } catch (err) {
+        console.log(err)
         if (err.response?.status === 422) {
             const errors = err.response.data.errors
+            console.log(errors)
             nameErr.value = !!errors?.name
             emailErr.value = !!errors?.email
             passwordErr.value = !!errors?.password

@@ -39,6 +39,9 @@ class registerReq extends FormRequest
             'password' => [
                 'required',
                 'confirmed',
+            ],
+            'image' => [
+                'required','file','image','mimes:png,jpg,jpeg'
             ]
         ];
     }

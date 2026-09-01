@@ -2,6 +2,7 @@ import AdminLayout from '@/layouts/adminLayout.vue'
 import { userStore } from '@/stores/user'
 import Dashboard from '@/views/auth/dashboard.vue'
 import Login from '@/views/auth/login.vue'
+import Logout from '@/views/auth/logout.vue'
 import Register from '@/views/auth/register.vue'
 import Verified_email from '@/views/auth/verified_email.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -18,7 +19,7 @@ const router = createRouter({
       
     },
     {
-      path: '/login',
+      path: '/',
       name: 'login',
       component: Login,
       meta: { guestOnly: true }
@@ -27,6 +28,12 @@ const router = createRouter({
       path: '/email_verified',
       component: Verified_email,
       meta: { guestOnly: true }
+    },
+    {
+      path: '/logout',
+      component: Logout,
+      name: 'logout',
+      meta: {requiresAuth: true}
     },
     {
       path: '/dashboard',

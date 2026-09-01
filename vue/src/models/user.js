@@ -5,5 +5,6 @@ export default class User{
         this.email = data.email ?? ''
         this.password = data.password ?? null
         this.password_confirmation = data.password_confirmation ?? null
+        this.image = data.image ?? null
     }
 }

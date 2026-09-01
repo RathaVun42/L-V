@@ -1,10 +1,10 @@
 <template>
     <!-- Background -->
-    <div class="absolute inset-0">
+    <!-- <div class="absolute inset-0">
         <Lightfall />
     </div>
 
-    <div class="absolute inset-0 bg-black/30"></div>
+    <div class="absolute inset-0 bg-black/30"></div> -->
 
     <div class="flex z-10 min-h-screen items-center flex-col justify-center px-6 py-12 sm:px-8 bg-danger ">
         <!-- <div class="sm:mx-auto sm:w-full sm:max-w-sm">

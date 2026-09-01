@@ -1,10 +1,10 @@
 <template>
     <!-- Background -->
-    <div class="absolute inset-0">
+    <!-- <div class="absolute inset-0">
         <Lightfall />
     </div>
 
-    <div class="absolute inset-0 bg-black/30"></div>
+    <div class="absolute inset-0 bg-black/30"></div> -->
 
     <div class="flex z-10 min-h-screen flex-col justify-center items-center  px-6 py-12 sm:px-8 bg-danger ">
         <div class="mt-10 z-10 sm:mx-auto sm:w-full sm:max-w-sm bg-emerald-700 px-5 border  rounded-md  py-2 ">
@@ -33,9 +33,16 @@
                 </div>
             </form>
 
-            <p class="mb-0 text-center text-sm/6 text-black">
-                <router-link :to="{ name: 'register' }" class="text-center">Don't have any account yet?</router-link>
-            </p>
+
+            <div class="flex h-16 items-center px-6 justify-between">
+                <p class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
+                    <router-link :to="{ name: 'register' }" class="text-center">Don't have any account
+                        yet?</router-link>
+                </p>
+                <p class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
+                    <router-link :to="{ name: 'reset_password_email' }" class="text-center">forget password?</router-link>
+                </p>
+            </div>
 
         </div>
     </div>
@@ -72,23 +79,23 @@ const loginM = async (user) => {
         store.setState(data.user)
         store.setSanctumToken(data.token)
         resetAllState();
-        router.replace({name: 'admin.dashboard'})
+        router.replace({ name: 'admin.dashboard' })
         return CloseModal()
     } catch (err) {
         console.log(err)
-        const {response} = err;
+        const { response } = err;
         console.log(response)
-        if(!response){
+        if (!response) {
             return MessageModal({ icon: "error", title: "Error", text: error.message });
         }
-        const {data, status} = response;
-        if(status === 422){
-            Object.keys(userErr).forEach((key) =>{
+        const { data, status } = response;
+        if (status === 422) {
+            Object.keys(userErr).forEach((key) => {
                 userErr[key] = data.errors[key] ? data.errors[0] : ''
             })
             // return CloseModal()
         }
         return MessageModal({ icon: "error", title: "Error", text: data.message });
-    } 
+    }
 }
 </script>

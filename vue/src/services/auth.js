@@ -1,6 +1,7 @@
 import User from "@/models/user" ;
 import axios from "axios";
-const apiUrl = import.meta.env.API_URL
+const apiUrl = import.meta.env.VITE_API_URL
+const resetPasswordCallbackUrl = import.meta.env.VITE_RESET_PASSWORD_URL
 
 export const register = async (user) => {
 
@@ -18,11 +19,12 @@ export const register = async (user) => {
         formData.append('image', user.image)
     }
 
-    return await axios.post('http://localhost:8000/api/register', formData)
+    return await axios.post(`${apiUrl}/register`, formData)
 }
 export async function login(user = {}) {
+    console.log(apiUrl)
     const res = await axios.post(
-        `http://localhost:8000/api/login`,
+        `${apiUrl}/login`,
         new User(user),
         {
             headers:{
@@ -34,11 +36,21 @@ export async function login(user = {}) {
 }
 export async function logout(token) {
     return await axios.post(
-        `http://localhost:8000/api/logout`,
+        `${apiUrl}/logout`,
         null, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
+        }
+    )
+}
+
+export async function sendResetPasswordEmail(email) {
+    return await axios.post(
+        `${apiUrl}/sent/reset-password-email`,
+        {
+            email,
+            callback_url: resetPasswordCallbackUrl
         }
     )
 }

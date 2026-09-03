@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Classes\ImageClass;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\loginReq;
 use App\Http\Requests\registerReq;
 use App\Http\Requests\SendResetPasswordEmailRequest;
 use App\Http\Requests\SetNewPasswordRequest;
+use App\Http\Requests\UpdateUserInfoRequest;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
+use Illuminate\Http\Client\ResponseSequence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -69,6 +72,13 @@ class AuthController extends Controller
             'token' => $token
         ], 200);
     }
+    public function verifyToken(Request $request)
+    {
+        return response([
+            'message' => 'Token is valid',
+            'user' => $request->user()
+        ]);
+    }
     public function logout(Request $request)
     {
         $user = $request->user();
@@ -126,5 +136,52 @@ class AuthController extends Controller
         return response([
             'message' => 'Password has been reset successfully.'
         ], 200);
+    }
+    function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $request->user();
+        if (!Hash::check($request->old_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'old_password' => 'Old password doesn\'t match.'
+            ]);
+        }
+        if ($request->old_password === $request->new_password) {
+            throw ValidationException::withMessages([
+                'new_password' => 'New password must be different from current password!'
+            ]);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        $user->tokens()->delete();
+        return response([
+            'message' => 'password changed successfully.'
+        ]);
+    }
+    function updateUserInfo(UpdateUserInfoRequest $updateUserInfoRequest)
+    {
+        $user = $updateUserInfoRequest->user();
+
+        $emailChange = $user->email !== $updateUserInfoRequest->email;
+        $user->name = $updateUserInfoRequest->name;
+
+        if ($emailChange) {
+            $user->email = $updateUserInfoRequest->email;
+            $user->email_verified_at = null;
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify', // this is a named route and it acts as reference route for our temporatySignedRoute
+                now()->addMinutes(60),
+                [
+                    'id' => $user->id,
+                    'hash' => sha1($updateUserInfoRequest->email)
+                ]
+            );
+            $user->notify(new VerifyEmailNotification($verificationUrl));
+        }
+        $user->save();
+        return response([
+            'message' => 'User updated.',
+            'user' => $user
+        ]);
     }
 }

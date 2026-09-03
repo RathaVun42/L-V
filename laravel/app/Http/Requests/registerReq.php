@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class registerReq extends FormRequest
 {
@@ -12,9 +13,10 @@ class registerReq extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // this is usefull cus it will help us check whether the user is allowed to perform this controller or not.
+        //return true; // this is usefull cus it will help us check whether the user is allowed to perform this controller or not.
                     // mostly we use condition to decide here.
                     // if it returns false, so our will never run
+        return Auth::user()->role == 'admin';
     }
 
     /**

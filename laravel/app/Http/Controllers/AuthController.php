@@ -8,10 +8,12 @@ use App\Http\Requests\loginReq;
 use App\Http\Requests\registerReq;
 use App\Http\Requests\SendResetPasswordEmailRequest;
 use App\Http\Requests\SetNewPasswordRequest;
+use App\Http\Requests\UpdateProfileImageRequest;
 use App\Http\Requests\UpdateUserInfoRequest;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
+use Exception;
 use Illuminate\Http\Client\ResponseSequence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -181,6 +183,25 @@ class AuthController extends Controller
         $user->save();
         return response([
             'message' => 'User updated.',
+            'user' => $user
+        ]);
+    }
+    function updateProfileImage(UpdateProfileImageRequest $request){
+        $imageClass = new ImageClass(directory: 'images/users');
+        $user = $request->user();
+        $old_image = $user->getRawOriginal('profile_image');
+        $new_image = null;
+        try{
+            $new_image = $imageClass->store($request->file('image'));
+            $user->profile_image = $new_image;
+            $user->save();
+        }catch(Exception $e){
+            $imageClass->delete($new_image);
+            throw $e;
+        }
+        $imageClass->delete($old_image);
+        return response([
+            'message' => 'User profile image updated successfully.',
             'user' => $user
         ]);
     }

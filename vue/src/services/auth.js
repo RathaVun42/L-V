@@ -82,3 +82,10 @@ export async function updateUser(user) {
         }
     )
 }
+export async function updateProfileImage(image) {
+    const formData = new FormData()
+    formData.append('image', image)
+    return await api.put(
+        '/update/profile_image', formData
+    )
+}

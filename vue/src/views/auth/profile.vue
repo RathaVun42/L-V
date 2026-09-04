@@ -3,21 +3,30 @@
         <div class="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm sm:p-10">
 
             <!-- Profile Image -->
-            <div class="mb-8 flex flex-col items-center">
+            <div class="mb-8 flex flex-col items-center gap-5">
                 <div
                     class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-gray-100 bg-gray-100">
                     <img v-if="profileImage" :src="profileImage" alt="Profile" class="h-full w-full object-cover" />
-
-                    <span v-else class="text-sm text-gray-400">
-                        Image
-                    </span>
                 </div>
-
-                <label class="mt-3 cursor-pointer text-sm font-medium text-green-700 hover:text-green-800">
+                <label v-if="!isNewfile"
+                    class="mt-3 cursor-pointer text-sm font-medium text-green-700 hover:text-green-800">
                     Change image
-
                     <input type="file" accept="image/*" class="hidden" @change="handleImageUpload" />
                 </label>
+                <div v-else class="flex flex-row gap-5 justify-center">
+                    <button type="button"
+                        class="rounded-lg bg-green-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        @click="onImageSave">
+                        Save
+                    </button>
+
+                    <button type="button"
+                        class="rounded-lg bg-green-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        @click="onCancel">
+                        Cancel
+                    </button>
+                </div>
+
             </div>
 
             <!-- Profile Information -->
@@ -112,10 +121,6 @@
                             Save
                         </button>
                     </div>
-
-                    <p v-if="message" class="mt-4 text-sm text-green-700">
-                        {{ message }}
-                    </p>
                 </div>
             </div>
         </div>
@@ -124,14 +129,19 @@
 
 <script setup>
 import { LoadingModal, MessageModal } from '@/functions/swal'
-import { chnagePassword, updateUser } from '@/services/auth'
+import { chnagePassword, updateProfileImage, updateUser } from '@/services/auth'
 import { userStore } from '@/stores/user'
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 const store = userStore()
 const router = useRouter()
-const profileImage = ref(`http://localhost:8000/storage/${store.$state.profile_image}`)
-const message = ref('')
+const storeImage = store.$state.profile_image ?? 'images/users/emptyuser.png'
+const profileImage = ref(`http://localhost:8000/storage/${storeImage}`)
+const originProfileImage = ref(`http://localhost:8000/storage/${storeImage}`)
+const uploadedFileName = ref('')
+const isNewfile = computed(() => {
+    return originProfileImage.value != profileImage.value
+})
 const originForm = reactive({
     name: store.$state.name,
     role: store.$state.is_admin ? 'admin' : 'staff',
@@ -168,8 +178,31 @@ function handleImageUpload(event) {
     const file = event.target.files?.[0]
     if (!file) return
     profileImage.value = URL.createObjectURL(file)
+    uploadedFileName.value = file
 }
-
+function onCancel() {
+    profileImage.value = originProfileImage.value
+}
+async function onImageSave() {
+    try {
+        LoadingModal('Updating your image profile ...')
+        console.log(uploadedFileName.value)
+        const response = await updateProfileImage(uploadedFileName.value);
+        console.log(response)
+        store.resetState()
+        store.setState(response.data.user)
+        MessageModal({ icon: "success", title: "Success", text: response.data.message })
+    } catch (err) {
+        const { response } = err
+        const { data, status } = response
+        if (status == 413) {
+            MessageModal({ icon: "error", title: "Failed", text: data.message })
+        }
+        if (status == 422) {
+            MessageModal({ icon: "error", title: "Failed", text: data.message })
+        }
+    }
+}
 async function saveChangedPassword() {
     if (!password.old_password) return
     try {
@@ -193,8 +226,6 @@ async function saveChangedPassword() {
             { icon: "fail", title: 'Failed', text: data.message },
         )
     }
-
-    message.value = 'Profile saved successfully.'
 }
 async function saveChangedUserInfo() {
     try {

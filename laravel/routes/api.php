@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum','verified'])->group(function(){
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/change/password', [AuthController::class, 'changePassword']);
     Route::put('/update/user', [AuthController::class, 'updateUserInfo']);
+    Route::put('/update/profile_image', [AuthController::class, 'updateProfileImage']);
     Route::get('/verify/token', [AuthController::class, 'verifyToken']);
 });
 Route::get('/email/verify/{id}/{hash}', function (int $id, string $hash) {

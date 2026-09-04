@@ -8,11 +8,11 @@
       <div class="flex h-16 items-center px-6 border-b border-emerald-400 justify-around">
         <h1 class="text-xl font-bold">
           My Admin
-        </h1> 
-        <RouterLink :to="{name: 'profile'}">
+        </h1>
+        <RouterLink :to="{ name: 'profile' }">
           <img :src="`http://localhost:8000/storage/${userImage}`" alt="" class="w-12 h-12 rounded-full object-cover">
         </RouterLink>
-        
+
       </div>
 
       <!-- Navigation -->
@@ -73,14 +73,20 @@
   </div>
 </template>
 <script setup>
-  import { useRouter } from 'vue-router';
-  import { userStore } from '@/stores/user';
-  const store = userStore();
-  const Image = store.$state.profile_image
-  const isAdimn = store.$state.is_admin
-  const userImage = Image ?? 'images/users/emptyuser.png'
-  const logout = () => {
-    const router = useRouter();
-    router.replace({ name: 'logout' })
-  }
+import { userStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
+
+
+
+const store = userStore();
+
+const isAdimn = store.$state.is_admin 
+
+const { profile_image,  } = storeToRefs(store); // we need the whole store obj, then destructuring later, after destructuring properties are vue ref
+
+const userImage = computed(() => {
+    return profile_image.value || '/images/users/emptyuser.png'; // || mean Or or Fallback, so it checks whether the value is exist or not?
+});
+
 </script>

@@ -6,7 +6,8 @@ export const userStore = defineStore('user', {
         name: null,
         email: null,
         profile_image: null,
-        password_null: false
+        password_null: false,
+        is_admin: false
     }),
 
     getters: {
@@ -20,6 +21,7 @@ export const userStore = defineStore('user', {
             this.email = user.email;
             this.profile_image = user.profile_image;
             this.password_null = user.password_null;
+            this.is_admin = user.role == 'admin'
         },
 
         resetState() {
@@ -28,6 +30,7 @@ export const userStore = defineStore('user', {
             this.email = null;
             this.profile_image = null;
             this.password_null = false;
+            this.is_admin = false;
         },
 
         setSanctumToken(token) {

@@ -9,7 +9,7 @@
         <h1 class="text-xl font-bold">
           My Admin
         </h1> 
-        <RouterLink>
+        <RouterLink :to="{name: 'profile'}">
           <img :src="`http://localhost:8000/storage/${userImage}`" alt="" class="w-12 h-12 rounded-full object-cover">
         </RouterLink>
         
@@ -21,6 +21,11 @@
         <RouterLink to="/dashboard/index" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
           active-class="bg-emerald-700">
           Dashboard
+        </RouterLink>
+
+        <RouterLink v-if="isAdimn" to="/register" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
+          active-class="bg-emerald-700">
+          Regist new staff
         </RouterLink>
 
         <RouterLink to="/products" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
@@ -72,6 +77,7 @@
   import { userStore } from '@/stores/user';
   const store = userStore();
   const Image = store.$state.profile_image
+  const isAdimn = store.$state.is_admin
   const userImage = Image ?? 'images/users/emptyuser.png'
   const logout = () => {
     const router = useRouter();

@@ -34,11 +34,7 @@
             </form>
 
 
-            <div class="flex h-16 items-center px-6 justify-between">
-                <p class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
-                    <router-link :to="{ name: 'register' }" class="text-center">Don't have any account
-                        yet?</router-link>
-                </p>
+            <div class="flex justify-start">
                 <p class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
                     <router-link :to="{ name: 'reset_password_email' }" class="text-center">forget password?</router-link>
                 </p>

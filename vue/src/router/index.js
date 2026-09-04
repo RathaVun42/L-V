@@ -4,6 +4,7 @@ import { userStore } from '@/stores/user'
 import Dashboard from '@/views/auth/dashboard.vue'
 import Login from '@/views/auth/login.vue'
 import Logout from '@/views/auth/logout.vue'
+import Profile from '@/views/auth/profile.vue'
 import Register from '@/views/auth/register.vue'
 import Send_reset_password from '@/views/auth/send_reset_password.vue'
 import Set_new_password from '@/views/auth/set_new_password.vue'
@@ -14,33 +15,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/register',
-    //   name: 'register',
-    //   component: Register,
-    //   meta: { guestOnly: true }, 
-
-    // },
-    // {
-    //   path: '/',
-    //   name: 'login',
-    //   component: Login,
-    //   meta: { guestOnly: true }
-    // },
-    // {
-    //   path: '/email_verified',
-    //   component: Verified_email,
-    //   meta: { guestOnly: true }
-    // },
-    // {
-    //   path: '/reset_password_email',
-    //   component: Reset_password,
-    //   name: 'reset_password_email',
-    //   meta: {
-    //     requiresAuth: false,
-    //     guestOnly: false  
-    //   }
-    // },
     {
       path: '/',
       component: GuestLayout,
@@ -50,8 +24,11 @@ const router = createRouter({
           path: '/register',
           name: 'register',
           component: Register,
-          meta: { guestOnly: true },
-
+          meta: { 
+            requiresAuth: true,
+            role: 'admin'
+           },
+           //all the properties inside meta can be cutomized by ourselves
         },
         {
           path: '',
@@ -100,22 +77,17 @@ const router = createRouter({
           component: Dashboard,
           name: 'dashboard.index',
           meta: { requiresAuth: true }
+        },
+        {
+          path: 'profile',
+          component: Profile,
+          name: 'profile',
+          meta:{
+            requiresAuth: true
+          }
         }
       ]
     }
-    // {
-    //   path: '/',
-    //   name: 'home',
-    //   component: HomeView,
-    // },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   component: () => import('../views/AboutView.vue'),
-    // },
   ],
 })
 router.beforeEach((to) => {
@@ -133,6 +105,10 @@ router.beforeEach((to) => {
       name: 'dashboard.index'
     }
   }
+
+  if (to.meta.role && !store.$state.is_admin) {
+        return { name: 'dashboard.index' }
+    }
 })
 
 export default router

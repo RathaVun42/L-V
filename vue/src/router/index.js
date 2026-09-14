@@ -1,7 +1,7 @@
 import AdminLayout from '@/layouts/adminLayout.vue'
 import GuestLayout from '@/layouts/guestLayout.vue'
 import { userStore } from '@/stores/user'
-import Dashboard from '@/views/auth/dashboard.vue'
+import Dashboard from '@/views/admin/dashboard.vue'
 import Login from '@/views/auth/login.vue'
 import Logout from '@/views/auth/logout.vue'
 import Profile from '@/views/auth/profile.vue'

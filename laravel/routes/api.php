@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\ProductController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,14 +17,6 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/sent/reset-password-email', [AuthController::class, 'sendResetPasswordEmail']);
 Route::post('/set/new-password', [AuthController::class, 'setNewPassword'])->name('set.new-password');
-Route::middleware(['auth:sanctum','verified'])->group(function(){
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::put('/change/password', [AuthController::class, 'changePassword']);
-    Route::put('/update/user', [AuthController::class, 'updateUserInfo']);
-    Route::put('/update/profile_image', [AuthController::class, 'updateProfileImage']);
-    Route::get('/verify/token', [AuthController::class, 'verifyToken']);
-});
 Route::get('/email/verify/{id}/{hash}', function (int $id, string $hash) {
     if(!URL::hasValidSignature(request())){
         abort(403, 'Invalid or expired verification link.');
@@ -43,3 +38,19 @@ Route::get('/email/verify/{id}/{hash}', function (int $id, string $hash) {
         return redirect('http://localhost:5173/');
     }
 })->name('verification.verify');
+Route::middleware(['auth:sanctum','verified'])->group(function(){
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/change/password', [AuthController::class, 'changePassword']);
+    Route::put('/update/user', [AuthController::class, 'updateUserInfo']);
+    Route::put('/update/profile_image', [AuthController::class, 'updateProfileImage']);
+    Route::get('/verify/token', [AuthController::class, 'verifyToken']);
+
+
+});
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('products', ProductController::class);
+    Route::get('menus', [MenuController::class, 'index']);
+});
+

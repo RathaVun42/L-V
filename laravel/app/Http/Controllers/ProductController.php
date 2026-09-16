@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\ProductRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Product;
 use Exception;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -25,12 +26,12 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         $data = $request->validated();
-        $image_class = new ImageClass(directory:'images/products');
+        $image_class = new ImageClass(directory: 'images/products');
         $image = null;
-        if($request->hasFile('image')){
-            try{
+        if ($request->hasFile('image')) {
+            try {
                 $image = $image_class->store($request->image);
-            }catch(Exception $e){
+            } catch (Exception $e) {
                 $image_class->delete(
                     $image
                 );
@@ -58,13 +59,13 @@ class ProductController extends Controller
 
     public function update(UpdateCategoryRequest $request, Product $product)
     {
-        $image_class = new ImageClass(directory:'images/products');
+        $image_class = new ImageClass(directory: 'images/products');
         $data = $request->validated();
         $old_image = $product->getRawOriginal('image');
         $new_image = null;
-        try{
+        try {
             $new_image = $image_class->store($request->image);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $image_class->delete($new_image);
             throw $e;
         }
@@ -86,6 +87,34 @@ class ProductController extends Controller
 
         return response()->json([
             'message' => 'Product deleted successfully',
+        ]);
+    }
+    public function byCategories(Request $request)
+    {
+        $validated = $request->validate([
+            'categories' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+
+            'categories.*' => [
+                'integer',
+                'exists:categories,id',
+            ],
+        ]);
+
+        $products = Product::whereIn(
+            'category_id',
+            $validated['categories']
+        )
+            ->where('is_active', true)
+            ->with('category')
+            ->get();
+
+        return response()->json([
+            'message' => 'Products retrieved successfully',
+            'data' => $products,
         ]);
     }
 }

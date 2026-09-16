@@ -25,6 +25,8 @@ class Product extends Model
             Menu::class,
             'menu_products' // this is the name of middle table (pivot table) if it has many-many relationship
         )->withPivot([ //When you retrieve the products through this relationship, also retrieve price and is_available from the pivot table.
+                        // later we can use $produ t->pivot->price or is_available to retrieve that pivot data
+                        
                     'price',
                     'is_available',
                 ]);

@@ -34,6 +34,7 @@ class PickupSlotService
             $date->toDateString() . ' ' . $setting->pickup_end_time
         );
 
+        // if (($setting->pickup_end_time - $setting->pickup_start_time) % $setting->slot_duration)     
         $slots = collect();
 
         while ($start->lt($end)) {

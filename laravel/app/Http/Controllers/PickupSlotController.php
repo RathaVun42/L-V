@@ -9,15 +9,17 @@ use Illuminate\Http\Request;
 class PickupSlotController extends Controller
 {
     public function index(
-        Request $request,
-        PickupSlotService $service
-    ) {
-        $validated = $request->validate([
-            'date' => [
-                'required',
-                'date',
-            ],
-        ]);
+    Request $request,
+    PickupSlotService $service
+) {
+    $validated = $request->validate([
+        'date' => [
+            'required',
+            'date',
+        ],
+    ]);
+
+    try {
 
         $date = Carbon::parse(
             $validated['date']
@@ -29,5 +31,11 @@ class PickupSlotController extends Controller
             'message' => 'Pickup slots retrieved successfully',
             'data' => $slots,
         ]);
+
+    } catch (\RuntimeException $e) {
+        return response()->json([
+            'message' => $e->getMessage(),
+        ], 422);
     }
+}
 }

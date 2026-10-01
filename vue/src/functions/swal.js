@@ -1,3 +1,4 @@
+import AppModal from "@/components/ui/AppModal.vue";
 import Swal from "sweetalert2";
 
 export const LoadingModal = (text = '...') =>{
@@ -23,3 +24,4 @@ export const MessageModal = async (options = {}, callback) => {
     }
   })
 }
+

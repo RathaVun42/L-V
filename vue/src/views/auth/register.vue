@@ -71,7 +71,7 @@
             </form>
             <div class="flex justify-start px-5">
                 <p class="mb-0 text-center text-sm/6 text-black">
-                    <router-link :to=" '/dashboard' " class="text-center">Dashboard</router-link>
+                    <router-link :to=" '/dashboard/index' " class="text-center">Dashboard</router-link>
                 </p>
             </div>
         </div>

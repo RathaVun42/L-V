@@ -33,8 +33,8 @@ class CategoryController extends Controller
         $category = Category::create([
             'name' => $request->name,
             'description' => $request->description,
-            'image' => $create_image->store($request->image),
-            'is_active' =>$request->is_active
+            'image' => $request->hasFile('image') ? $create_image->store($request->image) : '',
+            'is_active' => $request->is_active
         ]);
 
         return response()->json([
@@ -44,9 +44,9 @@ class CategoryController extends Controller
     }
 
     public function show(Category $category) // $category come from route(categories/2)
-                                            // then in this function number 2 will be come $category = Category::findOrFail(2);
-                                            // that why we can retrieve a specific category
-                                            // in this case the function param's name must match to route param's name, order uneccessary
+    // then in this function number 2 will be come $category = Category::findOrFail(2);
+    // that why we can retrieve a specific category
+    // in this case the function param's name must match to route param's name, order uneccessary
     {
         return response()->json([
             'message' => 'Category retrieved successfully',
@@ -57,18 +57,22 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
         $data = $request->validated(); // this will catch only requested data
-        $old_image = $category->getRawOriginal('image');
-        $new_image = null;
-        $image_class = new ImageClass(directory: 'images/categories');
-        try{
-            $new_image = $image_class->store($request->image);
-            $data['image'] = $new_image;
-        }catch(Exception $e){
-            $image_class->delete($new_image);
-            throw $e;
+        if ($request->hasFile('image')) {
+            $old_image = $category->getRawOriginal('image');
+            $new_image = null;
+            $image_class = new ImageClass(directory: 'images/categories');
+            try {
+                $new_image = $image_class->store($request->image);
+                $data['image'] = $new_image;
+            } catch (Exception $e) {
+                $image_class->delete($new_image);
+                throw $e;
+            }
+            $category->update($data);
+            $image_class->delete($old_image);
+        } else {
+            $category->update($data);
         }
-        $category->update($data);
-        $image_class->delete($old_image);
         return response()->json([
             'message' => 'Category updated successfully',
             'data' => $category,
@@ -77,10 +81,17 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+
+        $image_class = new ImageClass(directory: 'images/categories');
+        $image = $category->getRawOriginal('image');
+        if ($image) {
+            $image_class->delete($image);
+        }
         $category->delete();
 
         return response()->json([
             'message' => 'Category deleted successfully',
         ]);
     }
+
 }

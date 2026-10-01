@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 
 // https://vite.dev/config/
@@ -12,6 +13,31 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+
+      manifest: {
+        name: 'Canteen App',
+        short_name: 'Canteen',
+        description: 'Canteen pre-order system',
+        theme_color: '#10b981',
+        background_color: '#ecfdf5',
+        display: 'standalone',
+        start_url: '/',
+        icons: [
+          {
+            src: '/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
+      },
+    })
   ],
   resolve: {
     alias: {

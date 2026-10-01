@@ -7,6 +7,16 @@ import App from './App.vue'
 import router from './router'
 import { userStore } from './stores/user'
 import { api, verifyToken } from './services/auth'
+import { registerSW } from 'virtual:pwa-register'
+
+registerSW({
+    onofflineReady(){
+        console.log('PWA is ready to work offline.')
+    },
+    onNeedRefresh(){
+        console.log('New version available')
+    }
+})
 
 const app = createApp(App)
 const pinia = createPinia()

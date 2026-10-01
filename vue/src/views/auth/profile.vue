@@ -131,27 +131,207 @@
 import { LoadingModal, MessageModal } from '@/functions/swal'
 import { chnagePassword, updateProfileImage, updateUser } from '@/services/auth'
 import { userStore } from '@/stores/user'
-import { computed, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
 const store = userStore()
 const router = useRouter()
-const storeImage = store.$state.profile_image ?? 'images/users/emptyuser.png'
-const profileImage = ref(`http://localhost:8000/storage/${storeImage}`)
-const originProfileImage = ref(`http://localhost:8000/storage/${storeImage}`)
-const uploadedFileName = ref('')
+
+/*
+|--------------------------------------------------------------------------
+| Profile Image
+|--------------------------------------------------------------------------
+*/
+
+// Current saved image from Pinia
+const defaultProfileImage = '/images/users/emptyuser.png'
+
+const getProfileImage = () => {
+    return store.$state.profile_image || import.meta.env.VITE_API_URL + defaultProfileImage
+}
+
+// Image currently displayed in the UI
+const profileImage = ref(getProfileImage())
+
+// The image that is currently saved on the server
+const originProfileImage = ref(getProfileImage())
+
+// The new file selected by the user
+const uploadedFile = ref(null)
+
+// Temporary preview URL
+const previewUrl = ref(null)
+
+// Check whether the user has selected a new image
 const isNewfile = computed(() => {
-    return originProfileImage.value != profileImage.value
+    return uploadedFile.value !== null
 })
+console.log(store.$state.profile_image+"Image")
+/*
+|--------------------------------------------------------------------------
+| Image Upload
+|--------------------------------------------------------------------------
+*/
+
+function handleImageUpload(event) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+        return
+    }
+
+    // Store the actual file
+    uploadedFile.value = file
+
+    // Remove previous preview URL if there was one
+    if (previewUrl.value) {
+        URL.revokeObjectURL(previewUrl.value)
+    }
+
+    // Create preview
+    previewUrl.value = URL.createObjectURL(file)
+
+    // Show preview immediately
+    profileImage.value = previewUrl.value
+}
+
+/*
+|--------------------------------------------------------------------------
+| Cancel Image Change
+|--------------------------------------------------------------------------
+*/
+
+function onCancel() {
+    // Remove temporary preview
+    if (previewUrl.value) {
+        URL.revokeObjectURL(previewUrl.value)
+        previewUrl.value = null
+    }
+
+    // Return to the currently saved image
+    profileImage.value = originProfileImage.value
+
+    // Remove selected file
+    uploadedFile.value = null
+}
+
+/*
+|--------------------------------------------------------------------------
+| Save Image
+|--------------------------------------------------------------------------
+*/
+
+async function onImageSave() {
+    if (!uploadedFile.value) {
+        return
+    }
+
+    try {
+        LoadingModal('Updating your image profile ...')
+
+        const response = await updateProfileImage(uploadedFile.value)
+
+        console.log(response)
+
+        /*
+         * Update Pinia with the new user data
+         */
+        store.resetState()
+        store.setState(response.data.user)
+
+        /*
+         * Get the new image returned by Laravel
+         */
+        const newProfileImage =
+            store.$state.profile_image || defaultProfileImage
+
+        /*
+         * The new image is now the saved/original image.
+         */
+        originProfileImage.value = newProfileImage
+        profileImage.value = newProfileImage
+
+        /*
+         * Clean up temporary preview
+         */
+        if (previewUrl.value) {
+            URL.revokeObjectURL(previewUrl.value)
+            previewUrl.value = null
+        }
+
+        /*
+         * Clear selected file
+         */
+        uploadedFile.value = null
+
+        MessageModal({
+            icon: 'success',
+            title: 'Success',
+            text: response.data.message,
+        })
+        console.log("Image"+profileImage.value)
+
+    } catch (err) {
+        const response = err.response
+
+        if (!response) {
+            MessageModal({
+                icon: 'error',
+                title: 'Failed',
+                text: 'Something went wrong.',
+            })
+
+            return
+        }
+
+        const { data, status } = response
+
+        if (status === 413) {
+            MessageModal({
+                icon: 'error',
+                title: 'Failed',
+                text: data.message,
+            })
+
+            return
+        }
+
+        if (status === 422) {
+            MessageModal({
+                icon: 'error',
+                title: 'Failed',
+                text: data.message,
+            })
+
+            return
+        }
+
+        MessageModal({
+            icon: 'error',
+            title: 'Failed',
+            text: data.message || 'Something went wrong.',
+        })
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| User Information
+|--------------------------------------------------------------------------
+*/
+
 const originForm = reactive({
     name: store.$state.name,
     role: store.$state.is_admin ? 'admin' : 'staff',
     email: store.$state.email,
 })
+
 const form = reactive({
     name: store.$state.name,
     role: store.$state.is_admin ? 'admin' : 'staff',
     email: store.$state.email,
 })
+
 const isFormChaged = computed(() => {
     return (
         form.name !== originForm.name ||
@@ -162,91 +342,140 @@ const isFormChaged = computed(() => {
 
 const formErr = reactive({
     name: '',
-    email: ''
+    email: '',
 })
+
+/*
+|--------------------------------------------------------------------------
+| Password
+|--------------------------------------------------------------------------
+*/
+
 const password = reactive({
     old_password: '',
     new_password: '',
     new_password_confirmation: '',
 })
+
 const passwordErr = reactive({
-    old_password: "",
-    new_password: ''
+    old_password: '',
+    new_password: '',
 })
 
-function handleImageUpload(event) {
-    const file = event.target.files?.[0]
-    if (!file) return
-    profileImage.value = URL.createObjectURL(file)
-    uploadedFileName.value = file
-}
-function onCancel() {
-    profileImage.value = originProfileImage.value
-}
-async function onImageSave() {
+/*
+|--------------------------------------------------------------------------
+| Save User Information
+|--------------------------------------------------------------------------
+*/
+
+async function saveChangedUserInfo() {
     try {
-        LoadingModal('Updating your image profile ...')
-        console.log(uploadedFileName.value)
-        const response = await updateProfileImage(uploadedFileName.value);
-        console.log(response)
-        store.resetState()
-        store.setState(response.data.user)
-        MessageModal({ icon: "success", title: "Success", text: response.data.message })
+        LoadingModal('Changing your info ...')
+
+        const response = await updateUser(form)
+        const { data } = response
+
+        store.setState(data.user)
+
+        // Update original form values
+        originForm.name = data.user.name
+        originForm.email = data.user.email
+        originForm.role = data.user.is_admin ? 'admin' : 'staff'
+
+        MessageModal({
+            icon: 'success',
+            title: 'Success',
+            text: response.data.message,
+        })
+
     } catch (err) {
-        const { response } = err
+        const response = err.response
+
+        if (!response) {
+            MessageModal({
+                icon: 'error',
+                title: 'Failed',
+                text: 'Something went wrong.',
+            })
+
+            return
+        }
+
         const { data, status } = response
-        if (status == 413) {
-            MessageModal({ icon: "error", title: "Failed", text: data.message })
+
+        if (status === 422) {
+            Object.keys(formErr).forEach((key) => {
+                formErr[key] = data.errors?.[key]
+                    ? data.errors[key][0]
+                    : ''
+            })
+
+            return
         }
-        if (status == 422) {
-            MessageModal({ icon: "error", title: "Failed", text: data.message })
-        }
+
+        MessageModal({
+            icon: 'error',
+            title: 'Failed',
+            text: data.message || 'Something went wrong.',
+        })
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Save Password
+|--------------------------------------------------------------------------
+*/
+
 async function saveChangedPassword() {
-    if (!password.old_password) return
+    if (!password.old_password) {
+        return
+    }
+
     try {
-        LoadingModal('Changing you password ...')
+        LoadingModal('Changing your password ...')
+
         const response = await chnagePassword(password)
+
         MessageModal(
-            { icon: "success", title: "Success", text: response.data.message },
+            {
+                icon: 'success',
+                title: 'Success',
+                text: response.data.message,
+            },
             () => {
                 router.push({ name: 'logout' })
             }
         )
+
     } catch (err) {
-        const { response } = err
+        const response = err.response
+
+        if (!response) {
+            MessageModal({
+                icon: 'error',
+                title: 'Failed',
+                text: 'Something went wrong.',
+            })
+
+            return
+        }
+
         const { data, status } = response
-        if (status == 422) {
+
+        if (status === 422) {
             Object.keys(passwordErr).forEach((key) => {
-                passwordErr[key] = data.errors[key] ? data.errors[key][0] : ''
+                passwordErr[key] = data.errors?.[key]
+                    ? data.errors[key][0]
+                    : ''
             })
         }
-        return MessageModal(
-            { icon: "fail", title: 'Failed', text: data.message },
-        )
-    }
-}
-async function saveChangedUserInfo() {
-    try {
-        LoadingModal('Changing your info ...')
-        const response = await updateUser(form)
-        const { data } = response
-        store.setState(data.user)
-        return MessageModal( // can use return or just MessageModal cause this is the last statement of the code
-            { icon: "success", title: "Success", text: response.data.message },
-        )
-    } catch (err) {
-        const { response } = err
-        const { data, status } = response
-        if (status == 422) {
-            Object.keys(formErr).forEach((key) => {
-                formErr[key] = data.errors[key] ? data.errors[key][0] : ''
-            })
-        }
-        return MessageModal(
-            { icon: "fail", title: 'Failed', text: data.message }
-        )
+
+        MessageModal({
+            icon: 'fail',
+            title: 'Failed',
+            text: data.message || 'Something went wrong.',
+        })
     }
 }
 </script>

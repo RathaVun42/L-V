@@ -1,6 +1,7 @@
 import AdminLayout from '@/layouts/adminLayout.vue'
 import GuestLayout from '@/layouts/guestLayout.vue'
 import { userStore } from '@/stores/user'
+import Categories from '@/views/admin/Categories.vue'
 import Dashboard from '@/views/admin/dashboard.vue'
 import Login from '@/views/auth/login.vue'
 import Logout from '@/views/auth/logout.vue'
@@ -85,6 +86,12 @@ const router = createRouter({
           meta:{
             requiresAuth: true
           }
+        },
+        {
+          path: 'category',
+          component: Categories,
+          name: 'category',
+          meta: {requiresAuth: true}
         }
       ]
     }

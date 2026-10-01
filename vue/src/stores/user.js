@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+const img_ulr = import.meta.env.VITE_IMG_URL
 
 export const userStore = defineStore('user', {
     state: () => ({
@@ -19,7 +20,7 @@ export const userStore = defineStore('user', {
             this.id = user.id;
             this.name = user.name;
             this.email = user.email;
-            this.profile_image = user.profile_image;
+            this.profile_image = img_ulr + user.profile_image;
             this.password_null = user.password_null;
             this.is_admin = user.role == 'admin'
         },

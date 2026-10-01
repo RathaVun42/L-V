@@ -25,6 +25,7 @@
     "@vitejs/plugin-vue": "^6.0.8",
     "jsrepo": "^3.8.1",
     "vite": "^8.1.5",
+    "vite-plugin-pwa": "^1.3.0",
     "vite-plugin-vue-devtools": "^8.1.5"
   },
   "engines": {

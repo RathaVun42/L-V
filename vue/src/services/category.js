@@ -1,4 +1,5 @@
 import { api } from "./auth"
+import { createCategories } from "@/models/CategoryModel"
 
 function buildCategoryFormData(data) {
     const formData = new FormData()
@@ -14,10 +15,12 @@ function buildCategoryFormData(data) {
     return formData
 }
 
-export function getCategories(params = {}) {
-    return api.get('/admin/categories', {
+export async function getCategories(params = {}) {
+    const response = await api.get('/admin/categories', {
         params,
     })
+
+    return createCategories(response.data.data)
 }
 
 export function createCategory(data) {
@@ -29,7 +32,6 @@ export function createCategory(data) {
 export function updateCategory(id, data) {
     const formData = buildCategoryFormData(data)
 
-    // Laravel method spoofing
     formData.append('_method', 'PUT')
 
     return api.post(`/admin/categories/${id}`, formData)

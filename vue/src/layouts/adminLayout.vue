@@ -82,7 +82,7 @@
         </RouterLink>
 
 
-        <RouterLink to="/products" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
+        <RouterLink :to="{name: 'product'}" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
           active-class="bg-emerald-700" @click="closeSidebarOnMobile">
           Products
         </RouterLink>

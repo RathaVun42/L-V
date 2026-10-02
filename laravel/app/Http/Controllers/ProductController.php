@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\ProductRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Product;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -81,13 +82,27 @@ class ProductController extends Controller
         ]);
     }
 
+
     public function destroy(Product $product)
     {
-        $product->delete();
+        try {
+            $image = $product->getRawOriginal('image');
+            $product->delete();
 
-        return response()->json([
-            'message' => 'Product deleted successfully',
-        ]);
+            $imageClass = new ImageClass(directory: 'images/products');
+            $imageClass->delete($image);
+            return response()->json([
+                'message' => 'Product deleted successfully',
+            ]);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'This product cannot be deleted because it is being used in a menu.',
+                ], 409);
+            }
+
+            throw $e;
+        }
     }
     public function byCategories(Request $request)
     {

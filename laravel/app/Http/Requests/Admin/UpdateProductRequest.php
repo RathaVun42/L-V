@@ -32,7 +32,11 @@ class UpdateProductRequest extends FormRequest
                 'string',
                 'sometimes',
                 Rule::unique('products', 'name')
-                    ->ignore($this->name),
+                    ->ignore($this->product), // $this->product refer to $product inside controller
+                                                //     public function update(
+                                                //          UpdateProductRequest $request,
+                                                //          Product $product
+                                                //     ){}
             ],
             'description' => [
                 'sometimes',

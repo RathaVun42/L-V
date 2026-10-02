@@ -3,6 +3,7 @@ import GuestLayout from '@/layouts/guestLayout.vue'
 import { userStore } from '@/stores/user'
 import Categories from '@/views/admin/Categories.vue'
 import Dashboard from '@/views/admin/dashboard.vue'
+import Products from '@/views/admin/Products.vue'
 import Login from '@/views/auth/login.vue'
 import Logout from '@/views/auth/logout.vue'
 import Profile from '@/views/auth/profile.vue'
@@ -91,6 +92,12 @@ const router = createRouter({
           path: 'category',
           component: Categories,
           name: 'category',
+          meta: {requiresAuth: true}
+        },
+        {
+          path: 'product',
+          component: Products,
+          name: 'product',
           meta: {requiresAuth: true}
         }
       ]

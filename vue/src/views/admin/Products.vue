@@ -18,6 +18,15 @@
             </AppButton>
         </div>
 
+        <div class="flex gap-2 overflow-x-auto p-2 no-scrollbar">
+            <Chip :active="selectedCategory === null" @click="selectedCategory = null">
+                All
+            </Chip>
+            <Chip v-for="category in categoryOptions" :key="category.value" :active="selectedCategory === category.value" @click="selectedCategory = category.value">
+                {{ category.label }}
+            </Chip>
+        </div>
+
         <!-- Loading -->
         <AppLoading v-if="productStore.loading" text="Loading products..." />
 
@@ -37,7 +46,7 @@
         </div>
 
         <!-- Empty -->
-        <AppEmptyState v-else-if="productStore.products.length === 0" title="No products found"
+        <AppEmptyState v-else-if="filterProducts.length === 0" title="No products found"
             description="Create your first food product.">
             <template #action>
                 <AppButton @click="openCreateModal">
@@ -48,7 +57,7 @@
 
         <!-- Products -->
         <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <ProductCard v-for="product in productStore.products" :key="product.id" :product="product"
+            <ProductCard v-for="product in filterProducts" :key="product.id" :product="product"
                 @edit="openEditModal" @delete="deleteProductItem" />
         </div>
 
@@ -83,8 +92,15 @@ import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 import ProductCard from '@/components/products/ProductCard.vue'
 import ProductForm from '@/components/products/ProductForm.vue'
 import { useProductStore } from '@/stores/productStore'
+import Chip from '@/components/ui/Chip.vue'
+
+const selectedCategory = ref(null)
 
 const productStore = useProductStore()
+
+const products = computed(()=>{
+    return productStore.$state.products
+})
 
 const categories = ref([])
 
@@ -114,6 +130,13 @@ const categoryOptions = computed(() => {
     }))
 })
 
+const filterProducts = computed(()=>{
+    if(selectedCategory.value === null){
+        return products.value
+    }
+    return products.value.filter(product => product.category_id === selectedCategory.value)
+})
+
 /*
 |--------------------------------------------------------------------------
 | Load data
@@ -131,6 +154,14 @@ async function fetchData() {
     } catch (err) {
         console.error('Failed to load products:', err)
         error.value = err
+        if (err.response?.status === 404) {
+            const errors = err.response.data.message ?? {}
+            Object.assign(successSubmission, {
+                isOpen: true,
+                message: errors,
+                title: '404'
+            })
+        }
     }
 }
 
@@ -239,6 +270,20 @@ async function deleteProductItem(product) {
             })
             return
         }
+        if (err.response?.status === 404) {
+            const errors = err.response.data.message ?? {}
+
+            productStore.products = productStore.products.filter(
+                item => item.id !== product.id
+            )
+
+            Object.assign(successSubmission, {
+                isOpen: true,
+                message: errors,
+                title: '404'
+            })
+
+        }
 
         error.value = err
     }
@@ -288,6 +333,8 @@ function showSuccess(title, message) {
 
 function closeSuccessModal() {
     successSubmission.isOpen = false
+    successSubmission.title = ""
+    successSubmission.message = ""
     showModal.value = false
 }
 

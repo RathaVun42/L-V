@@ -8,7 +8,7 @@
                 label="Name"
                 placeholder="Enter category name"
                 required
-                :error="errors.name[0]"
+                :error="errors.name"
             />
 
             <!-- Description -->
@@ -29,10 +29,10 @@
                 ></textarea>
 
                 <p
-                    v-if="errors.description[0]"
+                    v-if="errors.description"
                     class="mt-1 text-sm text-red-500"
                 >
-                    {{ errors.description }}
+                    {{ errors.description?.[0] }}
                 </p>
             </div>
 
@@ -69,7 +69,7 @@
                     v-if="errors.image"
                     class="mt-1 text-sm text-red-500"
                 >
-                    {{ errors.image[0]}}
+                    {{ errors.image?.[0]}}
                 </p>
             </div>
 

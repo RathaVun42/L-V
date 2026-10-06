@@ -87,7 +87,8 @@ class ProductController extends Controller
     {
         try {
             $image = $product->getRawOriginal('image');
-            $product->delete();
+            $product->delete(); // we ask for delete product first before we delete product
+                                // because if we cannot delete product, the code will be stopped and go to catch section
 
             $imageClass = new ImageClass(directory: 'images/products');
             $imageClass->delete($image);

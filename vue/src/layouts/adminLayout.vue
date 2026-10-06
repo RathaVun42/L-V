@@ -92,6 +92,11 @@
           Category
         </RouterLink>
 
+        <RouterLink v-if="isAdmin" :to="{name: 'menus'}" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
+          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
+          Menus
+        </RouterLink>
+
 
         <RouterLink to="/users" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
           active-class="bg-emerald-700" @click="closeSidebarOnMobile">

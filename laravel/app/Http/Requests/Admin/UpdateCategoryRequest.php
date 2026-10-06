@@ -43,7 +43,7 @@ class UpdateCategoryRequest extends FormRequest
                 'nullable',
                 'file',
                 'image',
-                'mimes:png,jpg,jpeg'
+                'mimes:png,jpg,jpeg,webp'
             ],
 
             'is_active' => [

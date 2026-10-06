@@ -3,6 +3,7 @@ import GuestLayout from '@/layouts/guestLayout.vue'
 import { userStore } from '@/stores/user'
 import Categories from '@/views/admin/Categories.vue'
 import Dashboard from '@/views/admin/dashboard.vue'
+import Menus from '@/views/admin/Menus.vue'
 import Products from '@/views/admin/Products.vue'
 import Login from '@/views/auth/login.vue'
 import Logout from '@/views/auth/logout.vue'
@@ -98,6 +99,12 @@ const router = createRouter({
           path: 'product',
           component: Products,
           name: 'product',
+          meta: {requiresAuth: true}
+        },
+        {
+          path: 'menus',
+          component: Menus,
+          name: 'menus',
           meta: {requiresAuth: true}
         }
       ]

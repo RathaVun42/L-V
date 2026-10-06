@@ -83,6 +83,11 @@ class MenuController extends Controller
     public function update(MenuRequest $request, Menu $menu)
     {
         $validated = $request->validated();
+        if ($menu->date->isBefore(today())) {
+            return response()->json([
+                'message' => 'Past menus cannot be edited.'
+            ], 422);
+        }
 
         DB::transaction(function () use ($validated, $menu) {
 

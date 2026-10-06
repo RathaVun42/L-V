@@ -4,7 +4,7 @@
         <div class="mb-4 overflow-hidden rounded-lg">
             <img
                 v-if="category.image"
-                :src="`${category.image}`"
+                :src="category.image"
                 :alt="category.name"
                 class="h-40 w-full object-cover"
             />
@@ -63,12 +63,13 @@
 import AppButton from '@/components/ui/AppButton.vue'
 import AppBadge from '@/components/ui/AppBadge.vue'
 
-defineProps({
+const props = defineProps({
     category: {
         type: Object,
         required: true,
     },
 })
+console.log(props.category.image)
 
 const emit = defineEmits([
     'edit',

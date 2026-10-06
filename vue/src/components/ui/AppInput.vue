@@ -37,7 +37,7 @@
             v-if="error"
             class="mt-1 text-sm text-red-500"
         >
-            {{ error }}
+            {{ error?.[0] }}
         </p>
 
         <!-- Help text -->

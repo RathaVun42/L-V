@@ -25,7 +25,7 @@ class CategoryRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
-            'image' => 'nullable|file|image|mimes:png,jpg,jpeg',
+            'image' => 'nullable|file|image|mimes:png,jpg,jpeg,webp',
             'is_active' => 'boolean',
         ];
     }

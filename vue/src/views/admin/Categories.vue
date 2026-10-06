@@ -34,7 +34,7 @@
         <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <CategoryCard v-for="category in categories" :key="category.id" :category="category" @edit="openEditModal"
                 @delete="deleteCategoryItem" />
-     
+
         </div>
 
         <!-- Create / Edit Modal -->
@@ -115,6 +115,7 @@ function openCreateModal() {
 
 
 function openEditModal(category) {
+    console.log('EDIT CATEGORY:', category)
     editingCategory.value = category
     formErrors.value = {}
     showModal.value = true
@@ -195,9 +196,18 @@ async function deleteCategoryItem(category) {
             Object.assign(submissionResult, {
                 isOpen: true,
                 title: 'Submition',
-                message: 'Item not'
+                message: 'Item not found'
             })
         }
+        if (error.response?.status == 409) {
+            Object.assign(submissionResult, {
+                isOpen: true,
+                title: 'Submition',
+                message: error.response?.data?.message
+            })
+        }
+
+
         console.error('Failed to delete category:', error)
     }
 }

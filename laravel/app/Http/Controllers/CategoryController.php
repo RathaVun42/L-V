@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -81,17 +82,27 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        try {
+            $image_class = new ImageClass(directory: 'images/categories');
+            $image = $category->getRawOriginal('image');
+            $category->delete();
 
-        $image_class = new ImageClass(directory: 'images/categories');
-        $image = $category->getRawOriginal('image');
-        if ($image) {
-            $image_class->delete($image);
+            if ($image) {
+                $image_class->delete($image);
+            }
+            return response()->json([
+                'message' => 'Category deleted successfully',
+            ]);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                return response()->json([
+                    'message' => 'This category cannot be deleted because it is being used in a product.',
+                ], 409);
+            }
+
+            throw $e;
         }
-        $category->delete();
 
-        return response()->json([
-            'message' => 'Category deleted successfully',
-        ]);
     }
 
 }

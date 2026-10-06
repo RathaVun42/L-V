@@ -1,0 +1,26 @@
+# Laravel
+/laravel/vendor/
+/laravel/node_modules/
+/laravel/.env
+/laravel/.env.*
+!/laravel/.env.example
+/laravel/storage/*.key
+/laravel/storage/framework/cache/*
+/laravel/storage/framework/sessions/*
+/laravel/storage/framework/views/*
+/laravel/storage/logs/*
+/laravel/bootstrap/cache/*
+/laravel/public/build/
+
+# Vue
+/vue/node_modules/
+/vue/dist/
+/vue/.env
+/vue/.env.*
+!/vue/.env.example
+
+# Editors and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

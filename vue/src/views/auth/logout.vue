@@ -10,7 +10,8 @@
     onMounted(()=>{
         const token = store.getSanctumToken();
         logout(token);
-        store.reset();
+        store.removeSanctumToken();
+        store.reset(); 
         router.replace({name: 'login'})
     })
 </script>

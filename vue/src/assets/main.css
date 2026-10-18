@@ -11,3 +11,32 @@
         display: none;
     }
 }
+@layer components{
+    p {
+        @apply mt-1 text-sm text-gray-500;
+    }
+    h1 {
+        @apply text-2xl font-bold text-gray-900
+    }
+    h2 {
+        @apply text-lg font-semibold text-gray-900
+    }
+    .nav-link{
+        @apply block rounded-lg px-4 py-3 transition hover:bg-emerald-600;
+    }
+    .nav-link-active {
+        @apply bg-emerald-700;
+    }
+    input[type="time"] {
+        -webkit-appearance: none;
+        appearance: none;
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        margin: 0;
+        @apply px-4 text-base leading-[2.5rem];
+    }
+
+}

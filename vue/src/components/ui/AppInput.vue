@@ -20,6 +20,8 @@
             :disabled="disabled"
             :readonly="readonly"
             :required="required"
+            :min="min"
+            :max="max"
             :class="[
                 'h-11 w-full rounded-lg border bg-white px-3 text-sm',
                 'outline-none transition',
@@ -101,6 +103,14 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    min: {
+        type: [Number, String],
+        default: 0
+    },
+    max: {
+        type: [Number, String],
+        default: undefined
+    }
 })
 
 defineEmits(['update:modelValue'])

@@ -70,37 +70,9 @@
       <!-- Navigation -->
       <nav class="mt-5 space-y-1 px-3">
 
-        <RouterLink to="/dashboard/index" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
-          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
-          Dashboard
-        </RouterLink>
-
-
-        <RouterLink v-if="isAdmin" to="/register" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
-          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
-          Register New Staff
-        </RouterLink>
-
-
-        <RouterLink :to="{name: 'product'}" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
-          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
-          Products
-        </RouterLink>
-
-        <RouterLink v-if="isAdmin" :to="{name: 'category'}" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
-          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
-          Category
-        </RouterLink>
-
-        <RouterLink v-if="isAdmin" :to="{name: 'menus'}" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
-          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
-          Menus
-        </RouterLink>
-
-
-        <RouterLink to="/users" class="block rounded-lg px-4 py-3 transition hover:bg-emerald-600"
-          active-class="bg-emerald-700" @click="closeSidebarOnMobile">
-          Users
+        <RouterLink v-for="item in navigationItems" :key="item.label" :to="item.to" class="nav-link"
+          active-class="nav-link-active" @click="closeSidebarOnMobile">
+          {{ item.label }}
         </RouterLink>
 
       </nav>
@@ -142,23 +114,18 @@
 
 
         <!-- Logout -->
-        <RouterLink to="/logout" class="
-            rounded-lg
-            bg-emerald-500
-            px-3 py-2
-            text-sm font-medium text-white
-            transition
-            hover:bg-emerald-600
-            sm:px-4
-          ">
-          <span class="hidden sm:inline">
-            Logout
-          </span>
-
-          <span class="sm:hidden">
-            ↪
-          </span>
-        </RouterLink>
+        <button type="button" class="
+        rounded-lg
+        bg-emerald-500
+        px-3 py-2
+        text-sm font-medium text-white
+        transition
+        hover:bg-emerald-600
+        sm:px-4
+    " @click="showLogoutModal = true">
+          <span class="hidden sm:inline">Logout</span>
+          <span class="sm:hidden">↪</span>
+        </button>
 
       </header>
 
@@ -171,6 +138,15 @@
     </div>
 
   </div>
+  <AppModal :open="showLogoutModal" title="Log out" @close="showLogoutModal = false">
+    <p>Do you want to log out?</p>
+    <template #footer>
+      <AppButton @click="confirmLogOut">
+        OK
+      </AppButton>
+    </template>
+  </AppModal>
+
 </template>
 
 
@@ -178,19 +154,48 @@
 import { userStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-
+import AppModal from '@/components/ui/AppModal.vue';
+import { useRouter } from 'vue-router';
+import AppButton from '@/components/ui/AppButton.vue';
+const route = useRouter();
 const store = userStore();
-
-const { profile_image } = storeToRefs(store);
-
+// Keep using your existing isAdmin value.
+// This assumes isAdmin is already available in this component.
 // Temporary — we'll replace this with Spatie-based user data later.
 const isAdmin = store.$state.is_admin;
+
+const commonLinks = [
+  { label: 'Dashboard', to: '/dashboard/index' },
+  { label: 'Products', to: { name: 'product' } },
+]
+
+const adminLinks = [
+  { label: 'Register New Staff', to: '/register' },
+  { label: 'Category', to: { name: 'category' } },
+  { label: 'Menus', to: { name: 'menus' } },
+  { label: 'Users', to: '/users' },
+  { label: 'Pickup Settings', to: '/dashboard/pickup/settings' },
+]
+
+const navigationItems = computed(() => [
+  ...commonLinks,
+  ...(isAdmin ? adminLinks : []),
+])
+
+
+const showLogoutModal = ref(false)
+
+const { profile_image } = storeToRefs(store);
 
 const sidebarOpen = ref(false);
 
 const userImage = computed(() => {
   return profile_image.value || '/images/users/emptyuser.png';
 });
+function confirmLogOut() {
+  showLogoutModal.value = false
+  route.push('/logout')
+}
 
 const closeSidebarOnMobile = () => {
   sidebarOpen.value = false;

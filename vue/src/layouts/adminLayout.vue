@@ -175,6 +175,7 @@ const adminLinks = [
   { label: 'Menus', to: { name: 'menus' } },
   { label: 'Users', to: '/users' },
   { label: 'Pickup Settings', to: '/dashboard/pickup/settings' },
+  {label: 'Pickup slots', to: '/dashboard/pickup/slots'}
 ]
 
 const navigationItems = computed(() => [

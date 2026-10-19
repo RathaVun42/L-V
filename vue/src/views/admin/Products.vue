@@ -1,22 +1,12 @@
 <template>
     <div class="p-4 sm:p-6">
-
-        <!-- Header -->
-        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">
-                    Products
-                </h1>
-
-                <p class="mt-1 text-sm text-gray-500">
-                    Manage food products for your canteen.
-                </p>
-            </div>
-
-            <AppButton @click="openCreateModal">
+        <Header title="Prduct" subtitle="Manage food products for your canteen.">
+            <template #button>
+                <AppButton @click="openCreateModal">
                 + Add Product
             </AppButton>
-        </div>
+            </template>
+        </Header>
 
         <div class="flex gap-2 overflow-x-auto p-2 no-scrollbar">
             <Chip :active="selectedCategory === null" @click="selectedCategory = null">
@@ -93,6 +83,7 @@ import ProductCard from '@/components/products/ProductCard.vue'
 import ProductForm from '@/components/products/ProductForm.vue'
 import { useProductStore } from '@/stores/productStore'
 import Chip from '@/components/ui/Chip.vue'
+import Header from '@/components/ui/Header.vue'
 
 const selectedCategory = ref(null)
 

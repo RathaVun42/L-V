@@ -21,9 +21,11 @@ class PickupSlotService
         $day = strtolower($date->format('l'));
 
         if (!$setting->$day) {
-            return collect([
-                'message' => 'Today, shopping isn\'s availble.'
-            ]);
+            // return collect([
+            //     'message' => 'Today, shopping isn\'s availble.'
+            // ]);
+            throw new \RuntimeException('Today, shoppig isn\'n available.'); // this will throw error message with status code 422
+            //throw new \Exception('message'); this will throw error message with status 500
         }
 
         $start = Carbon::parse(

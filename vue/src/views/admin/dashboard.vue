@@ -1,6 +1,6 @@
 <template>
     <div class="space-y-6">
-        <AppInput v-model="name" label="Test Input" placeholder="Type something..." />
+        <!-- <AppInput v-model="name" label="Test Input" placeholder="Type something..." />
 
         <div class="flex gap-3">
             <AppButton>
@@ -32,16 +32,19 @@
 
         <p>
             Value: {{ name }}
-        </p>
+        </p> -->
+        <SlotInfo clickable="true" @click="">
+            
+        </SlotInfo>
     </div>
-    <AppModal :open="isOpen" title="test" @close="onClose">
+    <!-- <AppModal :open="isOpen" title="test" @close="onClose">
         <template #footer>
             <h1>
                 This is footer
             </h1>
         </template>
         This is App model
-    </AppModal>
+    </AppModal> -->
     <AppSelect v-model="status" label="Status" placeholder="Select status" :options="statusOptions" required="true" />
 </template>
 <script setup>
@@ -53,6 +56,7 @@ import AppBadge from '@/components/ui/AppBadge.vue'
 import AppLoading from '@/components/ui/AppLoading.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 import { ref } from 'vue'
+import SlotInfo from '@/components/pickupSlots/SlotInfo.vue'
 
 const name = ref('')
 const loading = ref(false)

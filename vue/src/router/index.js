@@ -5,6 +5,7 @@ import Categories from '@/views/admin/Categories.vue'
 import Dashboard from '@/views/admin/dashboard.vue'
 import Menus from '@/views/admin/Menus.vue'
 import PickupSettings from '@/views/admin/PickupSettings.vue'
+import PickupSlots from '@/views/admin/PickupSlots.vue'
 import Products from '@/views/admin/Products.vue'
 import Login from '@/views/auth/login.vue'
 import Logout from '@/views/auth/logout.vue'
@@ -112,6 +113,12 @@ const router = createRouter({
           path: 'pickup/settings',
           component: PickupSettings,
           name: 'pickup-settings',
+          meta: {requiresAuth: true}
+        },
+        {
+          path: 'pickup/slots',
+          component: PickupSlots,
+          name: 'pickup-slots',
           meta: {requiresAuth: true}
         }
       ]

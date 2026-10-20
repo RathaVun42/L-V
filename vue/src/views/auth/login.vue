@@ -34,7 +34,10 @@
             </form>
 
 
-            <div class="flex justify-start">
+            <div class="flex justify-between mt-2">
+                <p class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
+                    <router-link :to="{ name: 'register' }" class="text-center">Don't have account yet?</router-link>
+                </p>
                 <p class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
                     <router-link :to="{ name: 'reset_password_email' }" class="text-center">forget password?</router-link>
                 </p>

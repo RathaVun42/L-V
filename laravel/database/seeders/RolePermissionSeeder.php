@@ -5,81 +5,106 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
+        // Clear Spatie's permission cache.
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // 1. Define all permissions used by the application.
         $permissions = [
-            'categories.view',
-            'categories.create',
-            'categories.update',
-            'categories.delete',
+            // Dashboard
+            'view dashboard',
 
-            'products.view',
-            'products.create',
-            'products.update',
-            'products.delete',
+            // Categories
+            'view categories',
+            'create categories',
+            'update categories',
+            'delete categories',
 
-            'menus.view',
-            'menus.create',
-            'menus.update',
-            'menus.delete',
+            // Products
+            'view products',
+            'create products',
+            'update products',
+            'delete products',
 
-            'pickup-settings.view',
-            'pickup-settings.update',
+            // Daily menus
+            'view menus',
+            'create menus',
+            'update menus',
+            'delete menus',
 
-            'pickup-slots.view',
-            'pickup-slots.create',
-            'pickup-slots.update',
+            // Pickup settings and slots
+            'view pickup settings',
+            'manage pickup settings',
+            'view pickup slots',
+            'manage pickup slots',
 
-            'orders.view',
-            'orders.create',
-            'orders.update',
-            'orders.cancel',
+            // Orders
+            'view orders',
+            'manage orders',
+            'update order status',
 
-            'payments.view',
-            'payments.create',
+            // Users
+            'view users',
+            'create users',
+            'update users',
+            'delete users',
+            'assign user roles',
+
+            // Role and permission management
+            'view roles',
+            'manage roles',
         ];
 
+        // 2. Create permissions if they do not already exist.
         foreach ($permissions as $permission) {
-            Permission::findOrCreate($permission);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
         }
 
-        $admin = Role::findOrCreate('admin');
-        $staff = Role::findOrCreate('staff');
-        $customer = Role::findOrCreate('customer');
+        // 3. Create the initial roles.
+        $admin = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
 
-        $admin->givePermissionTo(
-            Permission::all()
+        $staff = Role::firstOrCreate([
+            'name' => 'staff',
+            'guard_name' => 'web',
+        ]);
+
+        $customer = Role::firstOrCreate([
+            'name' => 'customer',
+            'guard_name' => 'web',
+        ]);
+
+        // 4. Give admin every permission.
+        $admin->syncPermissions(
+            Permission::where('guard_name', 'web')->get()
         );
 
-        $staff->givePermissionTo([
-            'categories.view',
-            'products.view',
-
-            'menus.view',
-            'menus.create',
-            'menus.update',
-
-            'pickup-settings.view',
-
-            'pickup-slots.view',
-            'pickup-slots.create',
-            'pickup-slots.update',
-
-            'orders.view',
-            'orders.update',
-
-            'payments.view',
+        // 5. Give staff only the permissions they need.
+        $staff->syncPermissions([
+            'view dashboard',
+            'view categories',
+            'view products',
+            'view menus',
+            'view pickup slots',
+            'view orders',
+            'manage orders',
+            'update order status',
         ]);
 
-        $customer->givePermissionTo([
-            'menus.view',
-            'orders.create',
-            'orders.view',
-            'orders.cancel',
-            'payments.create',
-        ]);
+        // 6. Customers do not need admin permissions.
+        $customer->syncPermissions([]);
+
+        // Clear cache again after changing permissions.
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }

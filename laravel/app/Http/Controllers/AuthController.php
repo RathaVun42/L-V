@@ -10,6 +10,7 @@ use App\Http\Requests\SendResetPasswordEmailRequest;
 use App\Http\Requests\SetNewPasswordRequest;
 use App\Http\Requests\UpdateProfileImageRequest;
 use App\Http\Requests\UpdateUserInfoRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
 use Mockery\Generator\StringManipulation\Pass\Pass;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -42,6 +44,7 @@ class AuthController extends Controller
                 'hash' => sha1($user->email)
             ]
         );
+        $user->assignRole('customer');
         $user->notify(new VerifyEmailNotification($verificationUrl));
         return response()->json([
             'message' => 'Registration siccessful.'
@@ -70,7 +73,7 @@ class AuthController extends Controller
 
         return response([
             'message' => 'User signed in.',
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ], 200);
     }
@@ -186,16 +189,17 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
-    function updateProfileImage(UpdateProfileImageRequest $request){
+    function updateProfileImage(UpdateProfileImageRequest $request)
+    {
         $imageClass = new ImageClass(directory: 'images/users');
         $user = $request->user();
         $old_image = $user->getRawOriginal('profile_image');
         $new_image = null;
-        try{
+        try {
             $new_image = $imageClass->store($request->file('image'));
             $user->profile_image = $new_image;
             $user->save();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $imageClass->delete($new_image);
             throw $e;
         }
@@ -203,6 +207,24 @@ class AuthController extends Controller
         return response([
             'message' => 'User profile image updated successfully.',
             'user' => $user
+        ]);
+    }
+    public function getRoles(Request $request)
+    {
+        $user = $request->user();
+        $query = Role::query();
+        if($user->hasRole('admin')){
+            $query->where('name', '!=', 'admin');
+        }else{
+            throw ValidationException::withMessages(['message' => 'you do not have the right permissions.']);
+        }
+        $roles = $query->get()->pluck('name');
+        // $roles = Role::query()
+        //     ->where('guard_name', 'web')
+        //     ->pluck('name');
+
+        return response()->json([
+            'roles' => $roles,
         ]);
     }
 }

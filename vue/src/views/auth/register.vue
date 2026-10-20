@@ -39,6 +39,7 @@
                             <p v-if="passwordErr" class="text-red-500">{{ errMessage.password }}</p>
                     </div>
                 </div>
+
                 <div>
                     <label for="confirm_password" class="block text-sm/6 font-medium text-black">Confirm
                         password</label>
@@ -48,29 +49,50 @@
                             class="block w-full rounded-md bg-emerald-300 px-3 py-1.5 text-base outline-transparent outline-1 -outline-offset-1 placeholder:text-shadow-black-500 focus:outline-2 focus:-outline-offset-2 focus:outline-white sm:text-sm/6" />
                     </div>
                 </div>
+                <div v-if="store.is_admin">
+                    <label for="role" class="block text-sm/6 font-medium text-black">Roles</label>
+                    <div class="mt-2">
+                        <select name="role" id="role" v-model="user.role" class="block w-full rounded-md bg-emerald-300 px-3 py-1.5 text-base outline-transparent outline-1 -outline-offset-1 placeholder:text-shadow-black-500 focus:outline-2 focus:-outline-offset-2 focus:outline-white sm:text-sm/6">
+                            <option value="" disabled>Select a role</option>
+                            <option v-for="value in roles" :value="value">{{ value }}</option>
+                        </select>
+                    </div>
+                    <!-- <AppSelect id="role" :options="roles" placeholder="Select a role" v-model="user.role">
+
+                    </AppSelect> -->
+                </div>
                 <div>
-                    <input @change="handleFileChange" class="block w-full text-sm text-gray-500
-                                file:mr-4 file:rounded-md
-                                file:border-0
-                                file:bg-emerald-500
-                                file:px-4 file:py-2
-                                file:text-sm file:font-semibold
-                                file:text-black
-                                hover:file:bg-emerald-300" type="file" name="image" id="image"
-                        accept=".png,.jpg,.webp">
+                    <div class="mt-5">
+                        <input @change="handleFileChange" class="block w-full text-sm text-gray-50
+                                    file:mr-4 file:rounded-md
+                                    file:border-0
+                                    file:bg-emerald-500
+                                    file:px-4 file:py-2
+                                    file:text-sm file:font-semibold
+                                    file:text-black
+                                    hover:file:bg-emerald-300" type="file" name="image" id="image"
+                            accept=".png,.jpg,.webp">
+                    </div>
                 </div>
 
-                <div class="flex justify-end">
+                <div :class="['flex justify-end', store.isAuthenticated ? 'mt-3' : '' ]">
                     <button type="submit"
-                        class="flex w-25 justify-center  rounded-md bg-emerald-300 px-3 py-1.5 text-sm/6 font-semibold text-black hover:bg-emerald-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                        :class="[
+                            'flex w-25 justify-center  rounded-md bg-emerald-300 px-3 py-1.5 text-sm/6 font-semibold text-black hover:bg-emerald-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
+                            store.isAuthenticated ? '' : 'mb-3' 
+                        ]">
                         Register
                     </button>
                 </div>
-
-
             </form>
-            <div class="flex justify-start px-5">
-                <p class="mb-0 text-center text-sm/6 text-black">
+            <div  class="flex justify-start px-5 mb-3">
+                
+            </div>
+            <div class="flex justify-between mb-3">
+                <p v-if="!store.isAuthenticated" class="mb-0 text-center text-sm/6 text-black hover:text-emerald-300">
+                    <router-link :to="{ name: 'login' }" class="text-center">Already have account?</router-link>
+                </p>
+                <p v-if="store.isAuthenticated" class="mb-0 text-center text-sm/6 text-black">
                     <router-link :to=" '/dashboard/index' " class="text-center">Dashboard</router-link>
                 </p>
             </div>
@@ -80,10 +102,15 @@
 <script setup>
 import User from '@/models/user';
 import router from '@/router';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import Lightfall from '@/components/Lightfall.vue';
 import { CloseModal, LoadingModal, MessageModal } from '@/functions/swal';
-import { register } from '@/services/auth';
+import { adminRegister, register } from '@/services/auth';
+import { userStore } from '@/stores/user';
+import { getRoles } from '@/services/roles';
+import AppInput from '@/components/ui/AppInput.vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
+const store = userStore()
 
 const user = reactive(
     new User(
@@ -92,7 +119,8 @@ const user = reactive(
             email: '',
             password: '',
             password_confirmation: '',
-            image: null
+            image: null,
+            role: ''
         }
     )
 );
@@ -108,14 +136,35 @@ const errMessage = reactive({
     email: '',
     password: ''
 })
+const roles = ref([])
+const roleErr = ref('')
+const fetchRoles = async ()=>{
+    try{
+        console.log(store.is_admin)
+        if(store.is_admin){
+            const data = await getRoles()
+            roles.value = data
+            console.log(roles.value)
+        }else{
+            roles.value = []
+        }
+    }catch(err){
+        roleErr.value = err.response?.data?.message || 'error laoding roles.'
+    }
+}
 const registerM = async (user = {}) => {
     try {
         LoadingModal('Checking you email.')
         isRegistering.value = true
-        const res = await register(user);
+        let res = null
+        if(!store.isAuthenticated){
+            res = await register(user);
+        }
+        if(store.isAuthenticated && store.is_admin){
+            res = await adminRegister(user)
+        }
         console.log(user.image)
-        
-        if (res.status == 201) {
+        if (res?.status == 201) {
             router.push('/email_verified')
         }
         return CloseModal()
@@ -141,6 +190,9 @@ const registerM = async (user = {}) => {
         return MessageModal({icon: "error", title: "Error", text: data.message})
     } finally {
         isRegistering.value = false
+        
     }
 }
+
+onMounted(fetchRoles)
 </script>

@@ -30,8 +30,7 @@ const router = createRouter({
           name: 'register',
           component: Register,
           meta: { 
-            requiresAuth: true,
-            role: 'admin'
+            guestOnly: false
            },
            //all the properties inside meta can be cutomized by ourselves
         },
@@ -44,7 +43,7 @@ const router = createRouter({
         {
           path: 'email_verified',
           component: Verified_email,
-          meta: { guestOnly: true }
+          meta: { guestOnly: false }
         },
         {
           path: 'reset_password_email',

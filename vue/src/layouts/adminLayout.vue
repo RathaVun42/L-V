@@ -58,7 +58,7 @@
             </p>
 
             <p class="truncate text-xs text-emerald-100">
-              {{ isAdmin ? 'Administrator' : 'Staff' }}
+              {{ isAdmin ? 'Administrator' : store.role }}
             </p>
           </div>
 
@@ -165,11 +165,12 @@ const store = userStore();
 const isAdmin = store.$state.is_admin;
 
 const commonLinks = [
-  { label: 'Dashboard', to: '/dashboard/index' },
-  { label: 'Products', to: { name: 'product' } },
+  
 ]
 
 const adminLinks = [
+  { label: 'Dashboard', to: '/dashboard/index' },
+  { label: 'Products', to: { name: 'product' } },
   { label: 'Register New Staff', to: '/register' },
   { label: 'Category', to: { name: 'category' } },
   { label: 'Menus', to: { name: 'menus' } },

@@ -16,7 +16,7 @@ class registerReq extends FormRequest
         //return true; // this is usefull cus it will help us check whether the user is allowed to perform this controller or not.
                     // mostly we use condition to decide here.
                     // if it returns false, so our will never run
-        return Auth::user()->role == 'admin';
+        return true;
     }
 
     /**
@@ -43,7 +43,7 @@ class registerReq extends FormRequest
                 'confirmed',
             ],
             'image' => [
-                'required','file','image','mimes:png,jpg,jpeg'
+                'required','file','image','mimes:png,jpg,jpeg,webp'
             ]
         ];
     }

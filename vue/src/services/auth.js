@@ -24,6 +24,24 @@ export const register = async (user) => {
 
     return await api.post(`/register`, formData)
 }
+export const adminRegister = async (user) => {
+    console.log(user)
+    const formData = new FormData()
+    formData.append('name', user.name)
+    formData.append('email', user.email)
+    formData.append('password', user.password)
+    formData.append(
+        'password_confirmation',
+        user.password_confirmation
+    )
+
+    if (user.image) {
+        formData.append('profile_image', user.image)
+    }
+    formData.append('role', user.role)
+
+    return await api.post(`/admin/users`, formData)
+}
 export async function login(user = {}) {
     console.log(apiUrl)
     const res = await api.post(

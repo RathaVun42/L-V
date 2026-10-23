@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\IndexUsersRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Http\Requests\Admin\UpdateUserRoleRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AdminUserController extends Controller
 {
@@ -66,4 +69,25 @@ class AdminUserController extends Controller
             // }
             // }
     }
+
+
+
+// Inside AdminUserController:
+
+public function updateRole(
+    UpdateUserRoleRequest $request,
+    User $user
+) {
+    $role = $request->validated()['role'];
+
+    DB::transaction(function () use ($user, $role) {
+        $user->syncRoles([$role]);
+    });
+
+    return response()->json([
+        'message' => 'User role updated successfully.',
+        'user' => new UserResource($user->fresh()),
+    ]);
+}
+
 }

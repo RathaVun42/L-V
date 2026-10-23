@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
     'start_time',
     'end_time',
     'capacity',
+    'is_active',
 ])]
 class PickupSlot extends Model
 {
@@ -19,6 +20,7 @@ class PickupSlot extends Model
         return [
             'date' => 'date',
             'capacity' => 'integer',
+            'is_active' => 'boolean'
         ];
     }
 }

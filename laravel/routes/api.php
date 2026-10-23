@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\OrderController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -48,7 +49,7 @@ Route::get(
         }
 
         return redirect(
-            env('REDIRECT_URL')."/email_verified?status=success"
+            env('REDIRECT_URL') . "/email_verified?status=success"
         );
     }
 )->name('verification.verify');
@@ -60,6 +61,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::put('/update/profile_image', [AuthController::class, 'updateProfileImage']);
     Route::get('/verify/token', [AuthController::class, 'verifyToken']);
 });
+//order
+Route::post('/orders', [OrderController::class, 'store'])
+    ->middleware(['auth:sanctum', 'verified']);
 
 Route::middleware('auth:sanctum')
     ->prefix('admin')
@@ -104,8 +108,23 @@ Route::middleware('auth:sanctum')
             ->middleware('permission:delete categories');
 
         // Menus
-        Route::apiResource('menus', MenuController::class)
+        Route::get('menus', [MenuController::class, 'index'])
             ->middleware('permission:view menus');
+
+        Route::post('menus', [MenuController::class, 'store'])
+            ->middleware('permission:create menus');
+
+        Route::get('menus/{menu}', [MenuController::class, 'show'])
+            ->middleware('permission:view menus');
+
+        Route::put('menus/{menu}', [MenuController::class, 'update'])
+            ->middleware('permission:update menus');
+
+        Route::patch('menus/{menu}', [MenuController::class, 'update'])
+            ->middleware('permission:update menus');
+
+        Route::delete('menus/{menu}', [MenuController::class, 'destroy'])
+            ->middleware('permission:delete menus');
 
         // Pickup settings
         Route::get('pickup-settings', [
@@ -125,5 +144,10 @@ Route::middleware('auth:sanctum')
         ])->middleware('permission:view pickup slots');
 
         // Get users
-        Route::get('get/users',[AdminUserController::class, 'index'])->middleware('permission:view users');
+        Route::get('get/users', [AdminUserController::class, 'index'])->middleware('permission:view users');
+        // update user roles
+        Route::put('users/{user}/role', [
+            AdminUserController::class,
+            'updateRole',
+        ])->middleware('permission:assign user roles');
     });

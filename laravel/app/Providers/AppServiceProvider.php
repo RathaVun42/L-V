@@ -20,6 +20,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        JsonResource::withoutWrapping();
+        JsonResource::withoutWrapping(); // this will prevent every resource to wrap data inside data
+                                        // "data": [
+                                        //     {
+                                        //       "id": 12,
+                                        //       "name": "Anna",
+                                        //       "email": "anna@gmail.com"
+                                        //     }
+                                        //   ],
+                                        // but if our data contains paginated, this function will no affect on that data (mean our resource will wrap our data inside data: [])
     }
 }

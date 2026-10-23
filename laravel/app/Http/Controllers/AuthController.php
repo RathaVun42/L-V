@@ -213,11 +213,11 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $query = Role::query();
-        if($user->hasRole('admin')){
-            $query->where('name', '!=', 'admin');
-        }else{
-            throw ValidationException::withMessages(['message' => 'you do not have the right permissions.']);
-        }
+        // if($user->hasRole('admin')){
+        //     $query->where('name', '!=', 'admin');
+        // }else{
+        //     throw ValidationException::withMessages(['message' => 'you do not have the right permissions.']);
+        // }
         $roles = $query->get()->pluck('name');
         // $roles = Role::query()
         //     ->where('guard_name', 'web')

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CanteenSettingController;
 use App\Http\Controllers\CategoryController;
@@ -12,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Admin\UserController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
 
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -122,4 +123,7 @@ Route::middleware('auth:sanctum')
             PickupSlotController::class,
             'index',
         ])->middleware('permission:view pickup slots');
+
+        // Get users
+        Route::get('get/users',[AdminUserController::class, 'index'])->middleware('permission:view users');
     });

@@ -1,6 +1,7 @@
 import AdminLayout from '@/layouts/adminLayout.vue'
 import GuestLayout from '@/layouts/guestLayout.vue'
 import { userStore } from '@/stores/user'
+import AdminUsers from '@/views/admin/AdminUsers.vue'
 import Categories from '@/views/admin/Categories.vue'
 import Dashboard from '@/views/admin/dashboard.vue'
 import Menus from '@/views/admin/Menus.vue'
@@ -118,6 +119,12 @@ const router = createRouter({
           path: 'pickup/slots',
           component: PickupSlots,
           name: 'pickup-slots',
+          meta: {requiresAuth: true}
+        },
+        {
+          path: 'admin/users',
+          component: AdminUsers,
+          name: 'admin-users',
           meta: {requiresAuth: true}
         }
       ]
